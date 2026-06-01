@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JobPilot — Your job search on autopilot</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg-soft: #111729;
+    --card: #151c30;
+    --card-hover: #1b2440;
+    --line: #243049;
+    --text: #e8edf7;
+    --muted: #8b97b3;
+    --brand: #5b8cff;
+    --brand-2: #7c5cff;
+    --accent: #1fd1a5;
+    --warn: #ffb84d;
+    --radius: 16px;
+    --shadow: 0 20px 60px rgba(0,0,0,.45);
+    --maxw: 1140px;
+    font-synthesis: none;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 700px at 80% -10%, #1a2547 0%, transparent 55%),
+                radial-gradient(1000px 600px at -10% 10%, #2a1d4a 0%, transparent 50%),
+                var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- NAV ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(14px);
+    background: rgba(10,14,26,.72);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; font-weight: 700; font-size: 19px; letter-spacing: -.4px; }
+  .logo {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    display: grid; place-items: center;
+    box-shadow: 0 6px 18px rgba(91,140,255,.45);
+  }
+  .logo svg { width: 19px; height: 19px; }
+  .nav-links { display: flex; gap: 30px; align-items: center; }
+  .nav-links a { color: var(--muted); font-size: 15px; font-weight: 500; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: inherit; font-weight: 600; font-size: 15px;
+    padding: 11px 20px; border-radius: 11px; border: 0; cursor: pointer;
+    transition: transform .15s ease, box-shadow .2s ease, background .2s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: #fff; box-shadow: 0 8px 24px rgba(91,140,255,.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(91,140,255,.5); }
+  .btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--line); }
+  .btn-ghost:hover { background: rgba(255,255,255,.11); }
+  .btn-lg { padding: 15px 28px; font-size: 16px; border-radius: 13px; }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: 84px 0 40px; }
+  .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(31,209,165,.12); color: var(--accent);
+    border: 1px solid rgba(31,209,165,.3);
+    padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    margin-bottom: 22px;
+  }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(31,209,165,.6); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(31,209,165,.55)} 70%{box-shadow:0 0 0 9px rgba(31,209,165,0)} 100%{box-shadow:0 0 0 0 rgba(31,209,165,0)} }
+
+  h1 {
+    font-size: 56px; line-height: 1.05; letter-spacing: -1.8px; font-weight: 800;
+    margin-bottom: 20px;
+  }
+  h1 .grad { background: linear-gradient(120deg, var(--brand), var(--brand-2) 60%, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: 19px; color: var(--muted); max-width: 520px; margin-bottom: 30px; }
+  .hero-cta { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .hero-note { margin-top: 18px; font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .hero-note svg { width: 16px; height: 16px; color: var(--accent); }
+
+  /* ---------- DASHBOARD MOCK ---------- */
+  .mock {
+    background: linear-gradient(180deg, var(--card), var(--bg-soft));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .mock-bar { display: flex; align-items: center; gap: 7px; padding: 13px 16px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.02); }
+  .mock-bar .d { width: 11px; height: 11px; border-radius: 50%; }
+  .mock-bar .d.r { background: #ff5f57; } .mock-bar .d.y { background: #febc2e; } .mock-bar .d.g { background: #28c840; }
+  .mock-bar .url { margin-left: 12px; font-size: 12px; color: var(--muted); background: rgba(0,0,0,.3); padding: 4px 12px; border-radius: 7px; }
+  .mock-body { padding: 20px; }
+  .mock-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .mock-head h3 { font-size: 16px; }
+  .mock-head .live { font-size: 12px; color: var(--accent); display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .mock-head .live .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+  .stat { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .stat .n { font-size: 24px; font-weight: 800; letter-spacing: -.5px; }
+  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .stat .n.b { color: var(--brand); } .stat .n.a { color: var(--accent); } .stat .n.w { color: var(--warn); }
+
+  .feed { display: flex; flex-direction: column; gap: 9px; }
+  .job {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(255,255,255,.025); border: 1px solid var(--line);
+    border-radius: 12px; padding: 11px 13px;
+    opacity: 0; transform: translateY(8px);
+    animation: rise .5s forwards;
+  }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  .job .ico { width: 36px; height: 36px; border-radius: 9px; flex: none; display: grid; place-items: center; font-weight: 700; font-size: 15px; color: #fff; }
+  .job .meta { flex: 1; min-width: 0; }
+  .job .meta .t { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .job .meta .c { font-size: 12px; color: var(--muted); }
+  .tag { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .tag.applied { background: rgba(31,209,165,.14); color: var(--accent); }
+  .tag.match { background: rgba(91,140,255,.14); color: var(--brand); }
+  .tag.review { background: rgba(255,184,77,.14); color: var(--warn); }
+
+  /* ---------- SECTIONS ---------- */
+  section { padding: 70px 0; }
+  .sec-head { text-align: center; max-width: 640px; margin: 0 auto 48px; }
+  .sec-head .kicker { color: var(--brand); font-weight: 700; font-size: 14px; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 12px; }
+  .sec-head h2 { font-size: 40px; letter-spacing: -1px; line-height: 1.1; margin-bottom: 14px; }
+  .sec-head p { color: var(--muted); font-size: 18px; }
+
+  /* steps */
+  .steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; position: relative; transition: transform .2s, border-color .2s; }
+  .step:hover { transform: translateY(-4px); border-color: var(--brand); }
+  .step .num { font-size: 13px; font-weight: 800; color: var(--brand); margin-bottom: 14px; }
+  .step .ic { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, rgba(91,140,255,.2), rgba(124,92,255,.2)); display: grid; place-items: center; margin-bottom: 16px; }
+  .step .ic svg { width: 24px; height: 24px; color: var(--brand); }
+  .step h3 { font-size: 19px; margin-bottom: 8px; }
+  .step p { color: var(--muted); font-size: 15px; }
+
+  /* features */
+  .feat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
+  .feat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; transition: background .2s; }
+  .feat:hover { background: var(--card-hover); }
+  .feat .ic { font-size: 26px; margin-bottom: 12px; }
+  .feat h3 { font-size: 17px; margin-bottom: 7px; }
+  .feat p { color: var(--muted); font-size: 14.5px; }
+
+  /* pricing */
+  .price-wrap { display: flex; justify-content: center; }
+  .price {
+    background: linear-gradient(180deg, var(--card), var(--bg-soft));
+    border: 1px solid var(--brand); border-radius: 22px;
+    padding: 40px; max-width: 420px; width: 100%; text-align: center;
+    box-shadow: 0 24px 70px rgba(91,140,255,.22);
+    position: relative;
+  }
+  .price .ribbon { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg,var(--brand),var(--brand-2)); color:#fff; font-size: 12px; font-weight: 700; padding: 6px 16px; border-radius: 999px; letter-spacing:.5px; }
+  .price .amt { font-size: 64px; font-weight: 800; letter-spacing: -2px; margin: 14px 0 2px; }
+  .price .amt span { font-size: 20px; color: var(--muted); font-weight: 600; }
+  .price .sub { color: var(--muted); margin-bottom: 26px; }
+  .price ul { list-style: none; text-align: left; margin-bottom: 28px; display: flex; flex-direction: column; gap: 13px; }
+  .price li { display: flex; gap: 11px; align-items: flex-start; font-size: 15px; }
+  .price li svg { width: 20px; height: 20px; color: var(--accent); flex: none; margin-top: 1px; }
+  .price .btn { width: 100%; justify-content: center; }
+
+  /* trust band */
+  .band { background: var(--bg-soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .band-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; text-align: center; }
+  .band-grid .n { font-size: 40px; font-weight: 800; letter-spacing: -1px; background: linear-gradient(120deg,var(--brand),var(--accent)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .band-grid .l { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* footer */
+  footer { padding: 50px 0 40px; border-top: 1px solid var(--line); }
+  .foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 18px; }
+  .foot .muted { color: var(--muted); font-size: 14px; }
+  .foot-links { display: flex; gap: 24px; }
+  .foot-links a { color: var(--muted); font-size: 14px; }
+  .foot-links a:hover { color: var(--text); }
+  .disclaimer { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 28px; opacity: .7; }
+
+  /* demo banner */
+  .demo-tag { position: fixed; bottom: 18px; right: 18px; z-index: 99; background: rgba(124,92,255,.15); border: 1px solid var(--brand-2); color: #c9bcff; font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 999px; backdrop-filter: blur(8px); }
+
+  @media (max-width: 900px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    h1 { font-size: 42px; }
+    .steps, .feat-grid, .band-grid { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 560px) {
+    .steps, .feat-grid, .band-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 34px; }
+    .sec-head h2 { font-size: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 12L21 3l-4 18-4.5-6L3 12z" fill="#fff"/></svg>
+      </span>
+      JobPilot
+    </div>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#dashboard">Live demo</a>
+    </nav>
+    <button class="btn btn-primary">Start free trial</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill"><span class="dot"></span> Now applying to jobs while you sleep</span>
+      <h1>Your job search,<br><span class="grad">on autopilot.</span></h1>
+      <p class="lede">Tell us the roles you want and upload your CV once. JobPilot finds matching jobs and applies for you automatically, so you spend your time on interviews instead of forms.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg">Get started for $10/mo</button>
+        <a href="#dashboard" class="btn btn-ghost btn-lg">See it in action</a>
+      </div>
+      <div class="hero-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+        No credit card to preview. Cancel anytime.
+      </div>
+    </div>
+
+    <!-- live dashboard mock -->
+    <div class="mock" id="hero-mock">
+      <div class="mock-bar">
+        <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+        <span class="url">app.jobpilot.io/dashboard</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-head">
+          <h3>Your applications</h3>
+          <span class="live"><span class="dot"></span> Auto-applying</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="n b" id="s-applied">0</div><div class="l">Applied</div></div>
+          <div class="stat"><div class="n a" id="s-matches">0</div><div class="l">New matches</div></div>
+          <div class="stat"><div class="n w">12h</div><div class="l">Saved / wk</div></div>
+        </div>
+        <div class="feed" id="feed"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">How it works</div>
+      <h2>Set it up once. Let it run.</h2>
+      <p>Three steps to a job search that works for you around the clock.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">STEP 01</div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg></div>
+        <h3>Upload your CV</h3>
+        <p>Drop in your CV once. We parse your experience, skills, and history into a reusable profile.</p>
+      </div>
+      <div class="step">
+        <div class="num">STEP 02</div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M10 18h4"/></svg></div>
+        <h3>Define your targets</h3>
+        <p>Pick role titles, locations, salary range, remote preference, and the companies you love or want to avoid.</p>
+      </div>
+      <div class="step">
+        <div class="num">STEP 03</div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h3>We apply for you</h3>
+        <p>JobPilot scans listings daily, tailors each application, and submits on your behalf. You just review and interview.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAND -->
+<div class="band">
+  <div class="wrap" style="padding-top:46px;padding-bottom:46px;">
+    <div class="band-grid">
+      <div><div class="n">8.3M</div><div class="l">Jobs scanned monthly</div></div>
+      <div><div class="n">11 hrs</div><div class="l">Saved per user / week</div></div>
+      <div><div class="n">3.2x</div><div class="l">More interviews booked</div></div>
+      <div><div class="n">$10</div><div class="l">Flat monthly price</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Why JobPilot</div>
+      <h2>Built to do the boring part</h2>
+      <p>Every feature exists to save you time and get your CV in front of the right people.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat"><div class="ic">🎯</div><h3>Smart matching</h3><p>We rank every listing against your profile so you only apply where you genuinely fit.</p></div>
+      <div class="feat"><div class="ic">✍️</div><h3>Tailored applications</h3><p>Each submission adapts your CV and cover note to the role's keywords automatically.</p></div>
+      <div class="feat"><div class="ic">🔔</div><h3>Daily digest</h3><p>A morning summary of what we applied to, what's pending, and what needs your input.</p></div>
+      <div class="feat"><div class="ic">🛑</div><h3>You stay in control</h3><p>Set roles to auto-apply or hold for one-tap approval. Block any company instantly.</p></div>
+      <div class="feat"><div class="ic">📊</div><h3>Response tracking</h3><p>See views, replies, and interview invites in one place without juggling job boards.</p></div>
+      <div class="feat"><div class="ic">🔒</div><h3>Private by design</h3><p>Your CV and data are encrypted and never sold. You own everything, always.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Pricing</div>
+      <h2>One simple plan</h2>
+      <p>No tiers, no upsells. Everything included for the price of two coffees.</p>
+    </div>
+    <div class="price-wrap">
+      <div class="price">
+        <div class="ribbon">MOST POPULAR</div>
+        <div style="color:var(--muted);font-weight:600;margin-top:8px;">JobPilot Unlimited</div>
+        <div class="amt">$10<span>/month</span></div>
+        <div class="sub">Cancel anytime. Pause whenever you land the job.</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Unlimited auto-applications</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Smart match across major job boards</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Tailored CV and cover note per role</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Daily digest and response tracking</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Full control and company blocklist</li>
+        </ul>
+        <button class="btn btn-primary btn-lg">Start your free trial</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section id="dashboard">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Live demo</div>
+      <h2>Watch it work in real time</h2>
+      <p>This is the dashboard your members would see. New matches appear and applications fire automatically.</p>
+    </div>
+    <div class="mock" style="max-width:760px;margin:0 auto;">
+      <div class="mock-bar">
+        <span class="d r"></span><span class="d y"></span><span class="d g"></span>
+        <span class="url">app.jobpilot.io/dashboard</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-head">
+          <h3>Activity feed</h3>
+          <span class="live"><span class="dot"></span> Auto-applying</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat"><div class="n b" id="s-applied2">0</div><div class="l">Applied today</div></div>
+          <div class="stat"><div class="n a" id="s-matches2">0</div><div class="l">Matches found</div></div>
+          <div class="stat"><div class="n w" id="s-replies2">0</div><div class="l">Replies</div></div>
+        </div>
+        <div class="feed" id="feed2"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="brand" style="font-size:17px;">
+        <span class="logo" style="width:28px;height:28px;"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12L21 3l-4 18-4.5-6L3 12z" fill="#fff"/></svg></span>
+        JobPilot
+      </div>
+      <div class="foot-links">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#">Privacy</a>
+      </div>
+    </div>
+    <div class="disclaimer">Concept demo for internal review. All figures, companies, and activity shown are illustrative.</div>
+  </div>
+</footer>
+
+<div class="demo-tag">Demo build • concept only</div>
+
+<script>
+  // Sample job data for the live feeds
+  const companies = [
+    { c: "Stripe", t: "Senior Frontend Engineer", color: "#635bff", tag: "applied" },
+    { c: "Figma", t: "Product Designer", color: "#a259ff", tag: "applied" },
+    { c: "Notion", t: "Full Stack Developer", color: "#000", tag: "match" },
+    { c: "Linear", t: "Software Engineer, Web", color: "#5e6ad2", tag: "applied" },
+    { c: "Vercel", t: "Developer Advocate", color: "#111", tag: "review" },
+    { c: "Airbnb", t: "Staff Engineer", color: "#ff385c", tag: "match" },
+    { c: "Spotify", t: "Backend Engineer", color: "#1db954", tag: "applied" },
+    { c: "Canva", t: "Frontend Engineer", color: "#00c4cc", tag: "applied" },
+    { c: "Datadog", t: "Platform Engineer", color: "#632ca6", tag: "match" },
+    { c: "Atlassian", t: "Senior Product Engineer", color: "#2684ff", tag: "applied" }
+  ];
+
+  const tagLabel = { applied: "Applied", match: "New match", review: "Awaiting review" };
+
+  function makeJob(j) {
+    const el = document.createElement("div");
+    el.className = "job";
+    el.innerHTML = `
+      <div class="ico" style="background:${j.color}">${j.c[0]}</div>
+      <div class="meta">
+        <div class="t">${j.t}</div>
+        <div class="c">${j.c}</div>
+      </div>
+      <span class="tag ${j.tag}">${tagLabel[j.tag]}</span>`;
+    return el;
+  }
+
+  // animated counter
+  function countTo(el, target, dur = 1200) {
+    if (!el) return;
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min((now - start) / dur, 1);
+      el.textContent = Math.round(p * target);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // Hero feed: show first few, animate stats
+  function initFeed(feedId, items, delay) {
+    const feed = document.getElementById(feedId);
+    if (!feed) return;
+    items.forEach((j, i) => {
+      const el = makeJob(j);
+      el.style.animationDelay = (delay + i * 0.12) + "s";
+      feed.appendChild(el);
+    });
+  }
+
+  initFeed("feed", companies.slice(0, 4), 0.2);
+
+  countTo(document.getElementById("s-applied"), 47);
+  countTo(document.getElementById("s-matches"), 9);
+
+  // Live demo section: rolling feed that adds new jobs over time
+  let liveIdx = 0;
+  let appliedCount = 0;
+  const feed2 = document.getElementById("feed2");
+  const appliedEl = document.getElementById("s-applied2");
+  const matchEl = document.getElementById("s-matches2");
+  const replyEl = document.getElementById("s-replies2");
+
+  function addLiveJob() {
+    if (!feed2) return;
+    const j = companies[liveIdx % companies.length];
+    liveIdx++;
+    const el = makeJob(j);
+    feed2.insertBefore(el, feed2.firstChild);
+    // keep list trimmed
+    while (feed2.children.length > 5) feed2.removeChild(feed2.lastChild);
+    if (j.tag === "applied") {
+      appliedCount++;
+      if (appliedEl) appliedEl.textContent = appliedCount;
+    }
+    if (matchEl) matchEl.textContent = liveIdx;
+    if (replyEl) replyEl.textContent = Math.floor(liveIdx / 4);
+  }
+
+  // Start the live feed when scrolled into view
+  let started = false;
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !started) {
+        started = true;
+        addLiveJob(); addLiveJob(); addLiveJob();
+        setInterval(addLiveJob, 2600);
+      }
+    });
+  }, { threshold: 0.3 });
+  const dash = document.getElementById("dashboard");
+  if (dash) obs.observe(dash);
+</script>
+</body>
+</html>
