@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Set up your JobPilot</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .setup-shell { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* progress steps */
+  .steps-bar { display: flex; align-items: center; justify-content: center; gap: 0; margin: 10px 0 38px; }
+  .sbar-step { display: flex; align-items: center; }
+  .sbar-step .circle { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; background: rgba(255,255,255,.05); border: 1px solid var(--line); color: var(--muted); transition: .3s; }
+  .sbar-step.done .circle, .sbar-step.active .circle { background: linear-gradient(135deg, var(--brand), var(--brand-2)); border-color: transparent; color: #fff; box-shadow: 0 6px 16px rgba(91,140,255,.4); }
+  .sbar-step .lbl { font-size: 13px; color: var(--muted); margin-left: 10px; font-weight: 500; }
+  .sbar-step.active .lbl, .sbar-step.done .lbl { color: var(--text); }
+  .sbar-line { width: 54px; height: 2px; background: var(--line); margin: 0 14px; transition: .3s; }
+  .sbar-line.done { background: var(--brand); }
+
+  .step-panel { display: none; animation: fade .35s; }
+  .step-panel.show { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  .panel-head { margin-bottom: 26px; }
+  .panel-head h1 { font-size: 30px; letter-spacing: -.8px; margin-bottom: 8px; }
+  .panel-head p { color: var(--muted); font-size: 16px; }
+
+  /* dropzone */
+  .drop {
+    border: 2px dashed var(--line); border-radius: 18px; padding: 50px 30px; text-align: center;
+    cursor: pointer; transition: .2s; background: rgba(255,255,255,.02);
+  }
+  .drop:hover, .drop.drag { border-color: var(--brand); background: rgba(91,140,255,.06); }
+  .drop .big { width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, rgba(91,140,255,.2), rgba(124,92,255,.2)); display: grid; place-items: center; margin: 0 auto 18px; }
+  .drop .big svg { width: 30px; height: 30px; color: var(--brand); }
+  .drop h3 { font-size: 18px; margin-bottom: 6px; }
+  .drop p { color: var(--muted); font-size: 14px; }
+
+  .file-row { display: none; align-items: center; gap: 14px; background: rgba(31,209,165,.08); border: 1px solid rgba(31,209,165,.3); border-radius: 14px; padding: 16px 18px; margin-top: 18px; }
+  .file-row.show { display: flex; }
+  .file-row .fic { width: 42px; height: 42px; border-radius: 10px; background: rgba(31,209,165,.16); display: grid; place-items: center; flex: none; }
+  .file-row .fic svg { width: 22px; height: 22px; color: var(--accent); }
+  .file-row .fn { flex: 1; }
+  .file-row .fn .name { font-weight: 600; font-size: 15px; }
+  .file-row .fn .size { color: var(--muted); font-size: 13px; }
+  .file-row .check { color: var(--accent); }
+
+  /* parsing animation */
+  .parse-line { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 15px; opacity: .4; transition: opacity .3s; }
+  .parse-line.done { opacity: 1; }
+  .parse-line .tick { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; flex: none; transition: .3s; }
+  .parse-line.done .tick { background: var(--accent); border-color: var(--accent); }
+  .parse-line .tick svg { width: 13px; height: 13px; color: #06281f; opacity: 0; transition: .3s; }
+  .parse-line.done .tick svg { opacity: 1; }
+
+  /* parsed profile cards */
+  .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 6px; }
+  .pcard { background: rgba(255,255,255,.03); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .pcard .k { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .pcard .v { font-size: 16px; font-weight: 600; }
+  .pcard.full { grid-column: 1 / -1; }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .skill-tags span { font-size: 13px; background: rgba(91,140,255,.12); color: var(--brand); padding: 5px 11px; border-radius: 8px; font-weight: 500; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .opt-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .opt-row:last-child { border-bottom: 0; }
+  .opt-row .ot { font-weight: 600; font-size: 15px; }
+  .opt-row .od { font-size: 13px; color: var(--muted); }
+
+  .nav-btns { display: flex; justify-content: space-between; margin-top: 32px; gap: 14px; }
+
+  .range-val { color: var(--brand); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="index.html" class="brand">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12L21 3l-4 18-4.5-6L3 12z" fill="#fff"/></svg></span>
+      JobPilot
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="setup.html" class="active">Get started</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+    <a href="dashboard.html" class="btn btn-ghost">Skip to dashboard</a>
+  </div>
+</header>
+
+<div class="setup-shell">
+
+  <!-- progress -->
+  <div class="steps-bar">
+    <div class="sbar-step active" id="sb1"><span class="circle">1</span><span class="lbl">Upload CV</span></div>
+    <div class="sbar-line" id="sl1"></div>
+    <div class="sbar-step" id="sb2"><span class="circle">2</span><span class="lbl">Your profile</span></div>
+    <div class="sbar-line" id="sl2"></div>
+    <div class="sbar-step" id="sb3"><span class="circle">3</span><span class="lbl">Job targets</span></div>
+  </div>
+
+  <!-- STEP 1: UPLOAD -->
+  <div class="step-panel show" id="p1">
+    <div class="panel-head">
+      <h1>Upload your CV</h1>
+      <p>Drop your CV in once. We read it and build a reusable profile so you never fill out the same form again.</p>
+    </div>
+
+    <div class="drop" id="drop">
+      <input type="file" id="fileInput" hidden accept=".pdf,.doc,.docx" />
+      <div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0-12l-4 4m4-4l4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg></div>
+      <h3>Drag your CV here, or click to browse</h3>
+      <p>PDF, DOC or DOCX up to 10 MB</p>
+    </div>
+
+    <div class="file-row" id="fileRow">
+      <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg></div>
+      <div class="fn"><div class="name" id="fileName">CV_Alex_Morgan.pdf</div><div class="size">238 KB · uploaded</div></div>
+      <span class="check"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></span>
+    </div>
+
+    <div class="nav-btns">
+      <span></span>
+      <button class="btn btn-primary btn-lg" id="toStep2" disabled>Analyze my CV</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: PROFILE -->
+  <div class="step-panel" id="p2">
+    <div class="panel-head">
+      <h1>Here's what we found</h1>
+      <p>We parsed your CV into a profile. Review it, edit anything, and we'll use it to tailor every application.</p>
+    </div>
+
+    <!-- parsing animation (shown briefly) -->
+    <div id="parsing" class="card" style="padding:22px 24px;">
+      <div class="parse-line" data-i="0"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span> Reading document…</div>
+      <div class="parse-line" data-i="1"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span> Extracting work history…</div>
+      <div class="parse-line" data-i="2"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span> Identifying skills and seniority…</div>
+      <div class="parse-line" data-i="3" style="border-bottom:0;"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span> Building your profile…</div>
+    </div>
+
+    <!-- parsed result (revealed after) -->
+    <div id="profileResult" style="display:none;">
+      <div class="profile-grid">
+        <div class="pcard"><div class="k">Name</div><div class="v">Alex Morgan</div></div>
+        <div class="pcard"><div class="k">Current title</div><div class="v">Senior Frontend Engineer</div></div>
+        <div class="pcard"><div class="k">Experience</div><div class="v">7 years</div></div>
+        <div class="pcard"><div class="k">Location</div><div class="v">London, UK</div></div>
+        <div class="pcard full">
+          <div class="k">Detected skills</div>
+          <div class="skill-tags">
+            <span>React</span><span>TypeScript</span><span>Node.js</span><span>GraphQL</span>
+            <span>Next.js</span><span>AWS</span><span>Design systems</span><span>Team leadership</span>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:16px 18px;margin-top:16px;display:flex;gap:12px;align-items:center;">
+        <span style="font-size:20px;">💡</span>
+        <span style="font-size:14px;color:var(--muted);">Looks good? We'll auto-tailor your CV keywords to each role. You can refine your profile anytime.</span>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-ghost btn-lg" onclick="goStep(1)">Back</button>
+      <button class="btn btn-primary btn-lg" id="toStep3" disabled>Looks good, continue</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: TARGETS -->
+  <div class="step-panel" id="p3">
+    <div class="panel-head">
+      <h1>Define your targets</h1>
+      <p>Tell JobPilot what you want. We'll only apply to roles that match these rules.</p>
+    </div>
+
+    <div class="field">
+      <label>Role titles you want</label>
+      <div class="chips" id="roleChips">
+        <span class="chip on">Frontend Engineer</span>
+        <span class="chip on">Full Stack Engineer</span>
+        <span class="chip">Engineering Manager</span>
+        <span class="chip on">Senior Software Engineer</span>
+        <span class="chip">Staff Engineer</span>
+        <span class="chip">Tech Lead</span>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Location</label>
+        <input class="input" value="London, UK" />
+      </div>
+      <div class="field">
+        <label>Work style</label>
+        <select class="select">
+          <option>Remote only</option>
+          <option selected>Remote or hybrid</option>
+          <option>On-site OK</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Minimum salary: <span class="range-val" id="salaryVal">£70,000</span></label>
+      <input type="range" min="30000" max="150000" step="5000" value="70000" id="salary" style="width:100%;accent-color:var(--brand);" />
+    </div>
+
+    <div class="field">
+      <label>Companies to avoid (optional)</label>
+      <input class="input" placeholder="e.g. current employer, competitors…" />
+    </div>
+
+    <div class="card" style="padding: 6px 20px; margin-top: 8px;">
+      <div class="opt-row">
+        <div><div class="ot">Auto-apply to strong matches</div><div class="od">We submit automatically when match score is 85% or higher.</div></div>
+        <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+      </div>
+      <div class="opt-row">
+        <div><div class="ot">Hold borderline matches for review</div><div class="od">You approve anything between 70% and 85% with one tap.</div></div>
+        <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+      </div>
+      <div class="opt-row">
+        <div><div class="ot">Daily email digest</div><div class="od">A morning summary of activity and pending approvals.</div></div>
+        <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+      </div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn btn-ghost btn-lg" onclick="goStep(2)">Back</button>
+      <a href="dashboard.html" class="btn btn-primary btn-lg">Launch JobPilot →</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="demo-tag">Demo build • concept only</div>
+
+<script>
+  const drop = document.getElementById("drop");
+  const fileInput = document.getElementById("fileInput");
+  const fileRow = document.getElementById("fileRow");
+  const fileName = document.getElementById("fileName");
+  const toStep2 = document.getElementById("toStep2");
+
+  drop.addEventListener("click", () => fileInput.click());
+  drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("drag"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+  drop.addEventListener("drop", e => {
+    e.preventDefault(); drop.classList.remove("drag");
+    if (e.dataTransfer.files.length) showFile(e.dataTransfer.files[0].name);
+  });
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length) showFile(fileInput.files[0].name);
+  });
+  function showFile(name) {
+    fileName.textContent = name;
+    fileRow.classList.add("show");
+    toStep2.disabled = false;
+  }
+
+  // step navigation
+  function setBar(step) {
+    [1,2,3].forEach(n => {
+      const sb = document.getElementById("sb" + n);
+      sb.classList.toggle("active", n === step);
+      sb.classList.toggle("done", n < step);
+    });
+    if (document.getElementById("sl1")) document.getElementById("sl1").classList.toggle("done", step > 1);
+    if (document.getElementById("sl2")) document.getElementById("sl2").classList.toggle("done", step > 2);
+  }
+  function goStep(step) {
+    [1,2,3].forEach(n => document.getElementById("p" + n).classList.toggle("show", n === step));
+    setBar(step);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  toStep2.addEventListener("click", () => { goStep(2); runParse(); });
+  document.getElementById("toStep3").addEventListener("click", () => goStep(3));
+
+  // parsing animation then reveal profile
+  function runParse() {
+    const lines = document.querySelectorAll("#parsing .parse-line");
+    const parsing = document.getElementById("parsing");
+    const result = document.getElementById("profileResult");
+    const toStep3 = document.getElementById("toStep3");
+    result.style.display = "none";
+    parsing.style.display = "block";
+    lines.forEach(l => l.classList.remove("done"));
+    toStep3.disabled = true;
+    lines.forEach((l, i) => setTimeout(() => l.classList.add("done"), 450 * (i + 1)));
+    setTimeout(() => {
+      parsing.style.display = "none";
+      result.style.display = "block";
+      toStep3.disabled = false;
+    }, 450 * lines.length + 500);
+  }
+
+  // role chips toggle
+  document.getElementById("roleChips").addEventListener("click", e => {
+    if (e.target.classList.contains("chip")) e.target.classList.toggle("on");
+  });
+
+  // salary slider
+  const salary = document.getElementById("salary");
+  const salaryVal = document.getElementById("salaryVal");
+  salary.addEventListener("input", () => {
+    salaryVal.textContent = "£" + Number(salary.value).toLocaleString();
+  });
+</script>
+</body>
+</html>

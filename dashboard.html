@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JobPilot Dashboard</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .dash { max-width: 1180px; margin: 0 auto; padding: 30px 24px 80px; }
+
+  .dash-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 26px; }
+  .dash-head h1 { font-size: 28px; letter-spacing: -.6px; }
+  .dash-head .sub { color: var(--muted); font-size: 15px; margin-top: 4px; }
+  .status-chip { display: inline-flex; align-items: center; gap: 8px; background: rgba(31,209,165,.12); border: 1px solid rgba(31,209,165,.3); color: var(--accent); font-size: 13px; font-weight: 600; padding: 9px 16px; border-radius: 999px; }
+
+  /* stat cards */
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 26px; }
+  .scard { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  .scard .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .scard .ic { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; }
+  .scard .ic svg { width: 20px; height: 20px; }
+  .scard .n { font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .scard .l { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .scard .delta { font-size: 12px; font-weight: 600; }
+  .delta.up { color: var(--accent); }
+
+  .grid2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .panel-h { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+  .panel-h h2 { font-size: 16px; }
+  .panel-h .live { font-size: 12px; color: var(--accent); display: flex; align-items: center; gap: 7px; font-weight: 600; }
+  .panel-body { padding: 14px 20px 20px; }
+
+  /* applications table */
+  .app-list { display: flex; flex-direction: column; }
+  .app { display: flex; align-items: center; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .app:last-child { border-bottom: 0; }
+  .app .ico { width: 40px; height: 40px; border-radius: 10px; flex: none; display: grid; place-items: center; font-weight: 700; font-size: 16px; color: #fff; }
+  .app .info { flex: 1; min-width: 0; }
+  .app .info .t { font-weight: 600; font-size: 15px; }
+  .app .info .c { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .app .score { text-align: center; flex: none; width: 56px; }
+  .app .score .pct { font-weight: 800; font-size: 16px; }
+  .app .score .pl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .score-bar { height: 4px; border-radius: 999px; background: var(--line); margin-top: 4px; overflow: hidden; }
+  .score-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--brand), var(--accent)); }
+
+  /* activity feed */
+  .feed { display: flex; flex-direction: column; gap: 11px; }
+  .feed-item { display: flex; gap: 11px; align-items: flex-start; opacity: 0; transform: translateY(8px); animation: rise .5s forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  .feed-item .fdot { width: 30px; height: 30px; border-radius: 8px; flex: none; display: grid; place-items: center; font-size: 14px; }
+  .feed-item .ft { font-size: 14px; }
+  .feed-item .ft b { font-weight: 600; }
+  .feed-item .fts { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .control-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid var(--line); }
+  .control-row:last-child { border-bottom: 0; }
+  .control-row .ct { font-size: 14px; font-weight: 600; }
+  .control-row .cd { font-size: 12px; color: var(--muted); }
+
+  .right-col { display: flex; flex-direction: column; gap: 20px; }
+
+  @media (max-width: 920px) { .stats { grid-template-columns: 1fr 1fr; } .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="index.html" class="brand">
+      <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12L21 3l-4 18-4.5-6L3 12z" fill="#fff"/></svg></span>
+      JobPilot
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="setup.html">Get started</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+    </nav>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c5cff,#5b8cff);display:grid;place-items:center;font-weight:700;font-size:14px;">AM</span>
+    </div>
+  </div>
+</header>
+
+<div class="dash">
+  <div class="dash-head">
+    <div>
+      <h1>Good morning, Alex 👋</h1>
+      <div class="sub">JobPilot applied to 6 roles for you overnight. 2 are waiting for your review.</div>
+    </div>
+    <span class="status-chip"><span class="dot-pulse"></span> Auto-pilot is ON</span>
+  </div>
+
+  <!-- stats -->
+  <div class="stats">
+    <div class="scard">
+      <div class="top">
+        <div class="ic" style="background:rgba(91,140,255,.15);"><svg viewBox="0 0 24 24" fill="none" stroke="#5b8cff" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
+        <span class="delta up">▲ 18%</span>
+      </div>
+      <div class="n" id="stApplied">142</div>
+      <div class="l">Applications sent</div>
+    </div>
+    <div class="scard">
+      <div class="top">
+        <div class="ic" style="background:rgba(124,92,255,.15);"><svg viewBox="0 0 24 24" fill="none" stroke="#7c5cff" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <span class="delta up">▲ 9</span>
+      </div>
+      <div class="n" id="stViews">63</div>
+      <div class="l">CV views by recruiters</div>
+    </div>
+    <div class="scard">
+      <div class="top">
+        <div class="ic" style="background:rgba(31,209,165,.15);"><svg viewBox="0 0 24 24" fill="none" stroke="#1fd1a5" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <span class="delta up">▲ 4</span>
+      </div>
+      <div class="n" id="stReplies">17</div>
+      <div class="l">Recruiter replies</div>
+    </div>
+    <div class="scard">
+      <div class="top">
+        <div class="ic" style="background:rgba(255,184,77,.15);"><svg viewBox="0 0 24 24" fill="none" stroke="#ffb84d" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <span class="delta up">▲ 2</span>
+      </div>
+      <div class="n" id="stInterviews">5</div>
+      <div class="l">Interviews booked</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <!-- recent applications -->
+    <div class="panel">
+      <div class="panel-h">
+        <h2>Recent applications</h2>
+        <span class="live"><span class="dot-pulse"></span> Auto-applying</span>
+      </div>
+      <div class="panel-body">
+        <div class="app-list" id="appList"></div>
+      </div>
+    </div>
+
+    <!-- right column: activity + controls -->
+    <div class="right-col">
+      <div class="panel">
+        <div class="panel-h"><h2>Live activity</h2></div>
+        <div class="panel-body"><div class="feed" id="feed"></div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-h"><h2>Pilot controls</h2></div>
+        <div class="panel-body">
+          <div class="control-row">
+            <div><div class="ct">Auto-apply</div><div class="cd">Submit to matches above 85%</div></div>
+            <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+          </div>
+          <div class="control-row">
+            <div><div class="ct">Review queue</div><div class="cd">Hold 70–85% for approval</div></div>
+            <label class="switch"><input type="checkbox" checked><span class="track"></span></label>
+          </div>
+          <div class="control-row">
+            <div><div class="ct">Weekend pause</div><div class="cd">Don't apply Sat–Sun</div></div>
+            <label class="switch"><input type="checkbox"><span class="track"></span></label>
+          </div>
+          <a href="setup.html" class="btn btn-ghost" style="width:100%;margin-top:14px;">Edit job targets</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="demo-tag">Demo build • concept only</div>
+
+<script>
+  const companies = [
+    { c: "Stripe", t: "Senior Frontend Engineer", color: "#635bff", tag: "applied", score: 94, when: "2 min ago" },
+    { c: "Linear", t: "Software Engineer, Web", color: "#5e6ad2", tag: "applied", score: 91, when: "28 min ago" },
+    { c: "Figma", t: "Product Engineer", color: "#a259ff", tag: "reply", score: 89, when: "1 hr ago" },
+    { c: "Notion", t: "Full Stack Developer", color: "#101010", tag: "review", score: 82, when: "2 hrs ago" },
+    { c: "Vercel", t: "Developer Experience Eng", color: "#111", tag: "applied", score: 88, when: "3 hrs ago" },
+    { c: "Airbnb", t: "Staff Frontend Engineer", color: "#ff385c", tag: "review", score: 80, when: "5 hrs ago" },
+    { c: "Canva", t: "Senior Engineer, Editor", color: "#00c4cc", tag: "applied", score: 90, when: "Yesterday" },
+    { c: "Datadog", t: "Frontend Platform Engineer", color: "#632ca6", tag: "applied", score: 86, when: "Yesterday" }
+  ];
+  const tagLabel = { applied: "Applied", review: "Awaiting your review", reply: "Recruiter replied", match: "New match" };
+
+  // render applications
+  const appList = document.getElementById("appList");
+  companies.forEach(j => {
+    const el = document.createElement("div");
+    el.className = "app";
+    el.innerHTML = `
+      <div class="ico" style="background:${j.color}">${j.c[0]}</div>
+      <div class="info">
+        <div class="t">${j.t}</div>
+        <div class="c">${j.c} <span class="tag ${j.tag}">${tagLabel[j.tag]}</span> · ${j.when}</div>
+      </div>
+      <div class="score">
+        <div class="pct">${j.score}%</div>
+        <div class="pl">match</div>
+        <div class="score-bar"><i style="width:${j.score}%"></i></div>
+      </div>`;
+    appList.appendChild(el);
+  });
+
+  // animated stat counters
+  function countTo(id, target, dur = 1100) {
+    const el = document.getElementById(id); if (!el) return;
+    const start = performance.now();
+    (function tick(now){
+      const p = Math.min((now - start)/dur, 1);
+      el.textContent = Math.round(p * target);
+      if (p < 1) requestAnimationFrame(tick);
+    })(performance.now());
+  }
+  countTo("stApplied", 142); countTo("stViews", 63); countTo("stReplies", 17); countTo("stInterviews", 5);
+
+  // live activity feed
+  const events = [
+    { i: "✅", color: "rgba(31,209,165,.15)", html: "Applied to <b>Senior Frontend Engineer</b> at Stripe", when: "Just now" },
+    { i: "🔍", color: "rgba(91,140,255,.15)", html: "Found <b>4 new matches</b> in London", when: "12 min ago" },
+    { i: "💬", color: "rgba(124,92,255,.18)", html: "<b>Figma</b> recruiter viewed your CV", when: "1 hr ago" },
+    { i: "📅", color: "rgba(255,184,77,.15)", html: "Interview scheduled with <b>Linear</b>", when: "3 hrs ago" },
+    { i: "✍️", color: "rgba(31,209,165,.15)", html: "Tailored cover note for <b>Vercel</b>", when: "3 hrs ago" }
+  ];
+  const feed = document.getElementById("feed");
+  function renderFeed() {
+    feed.innerHTML = "";
+    events.forEach((e, i) => {
+      const el = document.createElement("div");
+      el.className = "feed-item";
+      el.style.animationDelay = (i * 0.1) + "s";
+      el.innerHTML = `<div class="fdot" style="background:${e.color}">${e.i}</div>
+        <div><div class="ft">${e.html}</div><div class="fts">${e.when}</div></div>`;
+      feed.appendChild(el);
+    });
+  }
+  renderFeed();
+
+  // periodically push a fresh "applied" event to feel live
+  let n = 0;
+  const fresh = [
+    { i: "✅", color: "rgba(31,209,165,.15)", c: "Canva", role: "Senior Engineer" },
+    { i: "✅", color: "rgba(31,209,165,.15)", c: "Datadog", role: "Platform Engineer" },
+    { i: "🔍", color: "rgba(91,140,255,.15)", c: "", role: "" }
+  ];
+  setInterval(() => {
+    const f = fresh[n % fresh.length]; n++;
+    const html = f.c ? `Applied to <b>${f.role}</b> at ${f.c}` : "Found <b>2 new matches</b> for you";
+    events.unshift({ i: f.i, color: f.color, html, when: "Just now" });
+    if (events.length > 6) events.pop();
+    // bump applied counter
+    const ae = document.getElementById("stApplied");
+    if (f.c && ae) ae.textContent = Number(ae.textContent) + 1;
+    renderFeed();
+  }, 4000);
+</script>
+</body>
+</html>
